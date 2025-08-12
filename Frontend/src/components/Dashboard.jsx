@@ -1,4 +1,4 @@
-// Updated Dashboard.jsx (to display subCategory)
+// Updated Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -184,6 +184,7 @@ const Dashboard = () => {
             >
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>Category: {problem.category}</h3>
               {problem.subCategory && <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Subcategory: {problem.subCategory}</p>}
+              {problem.subSubCategory && <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Sub-Subcategory: {problem.subSubCategory}</p>}
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Description: {problem.description}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Start Time: {new Date(problem.startTime).toLocaleString()}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>End Time: {problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing'}</p>
