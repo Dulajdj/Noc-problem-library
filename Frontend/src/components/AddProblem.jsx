@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const categories = [
   "Core Switch", "WAN Firewalls", "Perimeter Firewalls", "SAP Tunnels", "Access Switches",
   "Access Points", "Virtual Machines - VCenter", "Backup Servers - Avamar",
-  "Critical Server Room Alerts", "IDRAC Alerts", "Dialog", "SLT", "Citrix"
+  "Critical Alerts","Server Room Alerts", "IDRAC Alerts", "Dialog", "SLT", "Citrix"
 ];
 
 const wanFirewallSubCategories = [

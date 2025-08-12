@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [dashboardData, setDashboardData] = useState({ totalProblems: 0, latestProblem: null, addedProblems: 0 });
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -31,6 +32,20 @@ const Dashboard = () => {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    const total = problems.length;
+    const sortedProblems = [...problems].sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+    const latest = sortedProblems[0] || null;
+    const today = new Date();
+    const addedToday = problems.filter(p => {
+      const start = new Date(p.startTime);
+      return start.getFullYear() === today.getFullYear() &&
+             start.getMonth() === today.getMonth() &&
+             start.getDate() === today.getDate();
+    }).length;
+    setDashboardData({ totalProblems: total, latestProblem: latest, addedProblems: addedToday });
+  }, [problems]);
 
   useEffect(() => {
     let filtered = problems;
@@ -98,6 +113,25 @@ const Dashboard = () => {
             Add Problem
           </Link>
         </div>
+
+        {/* Dashboard Summary Section */}
+        <div style={{
+          backgroundColor: '#ffffff',
+          padding: '1.5rem',
+          borderRadius: '0.75rem',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          marginBottom: '2rem',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937', marginBottom: '1rem' }}>Dashboard Summary</h2>
+          <p style={{ color: '#4b5563', marginBottom: '0.5rem' }}>
+            Total Problems: <span style={{ fontWeight: '600', color: '#3b82f6' }}>{dashboardData.totalProblems}</span>
+          </p>
+          <p style={{ color: '#4b5563', marginBottom: '0.5rem' }}>
+            Added Problems Today: <span style={{ fontWeight: '600', color: '#3b82f6' }}>{dashboardData.addedProblems}</span>
+          </p>
+        </div>
+
         <div style={{
           backgroundColor: '#ffffff',
           padding: '1.5rem',
