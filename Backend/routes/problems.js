@@ -1,3 +1,4 @@
+// Updated problems.js (backend routes)
 import express from 'express';
 import Joi from 'joi';
 import Problem from '../models/problem.js';
@@ -7,11 +8,15 @@ const router = express.Router();
 // Validation schema
 const problemSchema = Joi.object({
   category: Joi.string().required(),
+  subCategory: Joi.string().allow(''),
+  subSubCategory: Joi.string().allow(''),
   description: Joi.string().required(),
   startTime: Joi.date().optional(),
   endTime: Joi.date().optional(),
   escalatedPerson: Joi.string().optional(),
-  remarks: Joi.string().optional()
+  remarks: Joi.string().optional(),
+  image: Joi.any().optional(), // Handle file upload
+  details: Joi.string().optional()
 });
 
 // GET all problems
@@ -42,6 +47,7 @@ router.post('/', async (req, res) => {
 
   try {
     const newProblem = new Problem(req.body);
+    if (req.file) newProblem.image = req.file.path; // Assuming multer or similar middleware
     await newProblem.save();
     res.status(201).json(newProblem);
   } catch (err) {
