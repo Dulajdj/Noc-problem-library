@@ -50,6 +50,12 @@ const Dashboard = () => {
     }
   };
 
+  const calculateDuration = (start, end) => {
+    if (!end) return 'Ongoing';
+    const duration = Math.floor((new Date(end) - new Date(start)) / (1000 * 60));
+    return duration + ' minutes';
+  };
+
   const paginatedProblems = filteredProblems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const totalPages = Math.ceil(filteredProblems.length / itemsPerPage);
 
@@ -183,6 +189,7 @@ const Dashboard = () => {
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Description: {problem.description}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Start Time: {new Date(problem.startTime).toLocaleString()}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>End Time: {problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing'}</p>
+              <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Duration: {calculateDuration(problem.startTime, problem.endTime)}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Escalated To: {problem.escalatedPerson || 'N/A'}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Remarks: {problem.remarks || 'N/A'}</p>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '0.75rem' }}>
