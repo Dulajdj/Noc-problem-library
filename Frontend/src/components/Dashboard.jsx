@@ -54,34 +54,89 @@ const Dashboard = () => {
   const totalPages = Math.ceil(filteredProblems.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 320%22%3E%3Cpath fill=%22%23E0F2FA%22 fill-opacity=%220.3%22 d=%22M0,64L48,80C96,96,192,128,288,128C384,128,480,96,576,85.3C672,75,768,85,864,96C960,107,1056,117,1152,122.7C1248,128,1344,128,1392,128L1440,128V320H1392C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320H0Z%22/%3E%3C/svg%3E')]">
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-xl shadow-2xl mb-8 flex justify-between items-center">
-          <h1 className="text-3xl font-extrabold tracking-wide">Problem Library Dashboard</h1>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom, #eef2f7 0%, #ffffff 100%)',
+      backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1440 320%22%3E%3Cpath fill=%22%23E0F2FA%22 fill-opacity=%220.3%22 d=%22M0,64L48,80C96,96,192,128,288,128C384,128,480,96,576,85.3C672,75,768,85,864,96C960,107,1056,117,1152,122.7C1248,128,1344,128,1392,128L1440,128V320H1392C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320H0Z%22/%3E%3C/svg%3E')",
+      padding: '1.5rem'
+    }}>
+      <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1.5rem' }}>
+        <div style={{
+          background: 'linear-gradient(to right, #2563eb 0%, #3b82f6 100%)',
+          color: '#ffffff',
+          padding: '1.5rem',
+          borderRadius: '0.75rem',
+          boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1)',
+          marginBottom: '2rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: '800', letterSpacing: '0.1em' }}>Problem Library Dashboard</h1>
           <Link
             to="/add"
-            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105 duration-300"
+            style={{
+              backgroundColor: '#10b981',
+              color: '#ffffff',
+              fontWeight: '600',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '0.5rem',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              transition: 'transform 0.3s, background-color 0.3s',
+              textDecoration: 'none'
+            }}
+            onMouseOver={(e) => { e.target.style.backgroundColor = '#059669'; e.target.style.transform = 'scale(1.05)'; }}
+            onMouseOut={(e) => { e.target.style.backgroundColor = '#10b981'; e.target.style.transform = 'scale(1)'; }}
           >
             Add Problem
           </Link>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
+        <div style={{
+          backgroundColor: '#ffffff',
+          padding: '1.5rem',
+          borderRadius: '0.75rem',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
             <input
               type="text"
               placeholder="Search by description..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full md:w-1/3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition duration-300"
+              style={{
+                width: '100%',
+                maxWidth: '16rem',
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                outline: 'none',
+                transition: 'border-color 0.3s, box-shadow 0.3s',
+                color: '#6b7280'
+              }}
+              onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+              onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
             />
             <select
               value={categoryFilter}
               onChange={e => setCategoryFilter(e.target.value)}
-              className="w-full md:w-1/4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white appearance-none"
+              style={{
+                width: '100%',
+                maxWidth: '12rem',
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                outline: 'none',
+                backgroundColor: '#ffffff',
+                appearance: 'none',
+                transition: 'border-color 0.3s, box-shadow 0.3s'
+              }}
+              onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+              onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
             >
               <option value="">All Categories</option>
               {categories.map(cat => (
-                <option key={cat} value={cat} className="p-2">
+                <option key={cat} value={cat} style={{ padding: '0.5rem' }}>
                   {cat}
                 </option>
               ))}
@@ -89,7 +144,19 @@ const Dashboard = () => {
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
-              className="w-full md:w-1/4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white appearance-none"
+              style={{
+                width: '100%',
+                maxWidth: '12rem',
+                padding: '0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.5rem',
+                outline: 'none',
+                backgroundColor: '#ffffff',
+                appearance: 'none',
+                transition: 'border-color 0.3s, box-shadow 0.3s'
+              }}
+              onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+              onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
             >
               <option value="">All Status</option>
               <option value="Open">Open</option>
@@ -97,28 +164,60 @@ const Dashboard = () => {
             </select>
           </div>
         </div>
-        <div className="grid gap-6">
+        <div style={{ display: 'grid', gap: '1.5rem' }}>
           {paginatedProblems.map(problem => (
             <div
               key={problem._id}
-              className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border-l-4 border-blue-500 transform hover:-translate-y-2"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: '1.5rem',
+                borderRadius: '0.75rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                borderLeft: '4px solid #3b82f6',
+                transition: 'transform 0.3s, box-shadow 0.3s'
+              }}
+              onMouseOver={(e) => { e.target.style.boxShadow = '0 10px 15px rgba(0, 0, 0, 0.2)'; e.target.style.transform = 'translateY(-0.5rem)'; }}
+              onMouseOut={(e) => { e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'; e.target.style.transform = 'translateY(0)'; }}
             >
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Category: {problem.category}</h3>
-              <p className="text-gray-600 mb-1">Description: {problem.description}</p>
-              <p className="text-gray-600 mb-1">Start Time: {new Date(problem.startTime).toLocaleString()}</p>
-              <p className="text-gray-600 mb-1">End Time: {problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing'}</p>
-              <p className="text-gray-600 mb-1">Escalated To: {problem.escalatedPerson || 'N/A'}</p>
-              <p className="text-gray-600 mb-1">Remarks: {problem.remarks || 'N/A'}</p>
-              <div className="flex justify-end mt-4 space-x-3">
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>Category: {problem.category}</h3>
+              <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Description: {problem.description}</p>
+              <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Start Time: {new Date(problem.startTime).toLocaleString()}</p>
+              <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>End Time: {problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing'}</p>
+              <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Escalated To: {problem.escalatedPerson || 'N/A'}</p>
+              <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Remarks: {problem.remarks || 'N/A'}</p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', gap: '0.75rem' }}>
                 <Link
                   to={`/edit/${problem._id}`}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-300"
+                  style={{
+                    backgroundColor: '#3b82f6',
+                    color: '#ffffff',
+                    fontWeight: '500',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    textDecoration: 'none',
+                    transition: 'background-color 0.3s'
+                  }}
+                  onMouseOver={(e) => { e.target.style.backgroundColor = '#2563eb'; }}
+                  onMouseOut={(e) => { e.target.style.backgroundColor = '#3b82f6'; }}
                 >
                   Edit
                 </Link>
                 <button
                   onClick={() => handleDelete(problem._id)}
-                  className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-300"
+                  style={{
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
+                    fontWeight: '500',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s'
+                  }}
+                  onMouseOver={(e) => { e.target.style.backgroundColor = '#dc2626'; }}
+                  onMouseOut={(e) => { e.target.style.backgroundColor = '#ef4444'; }}
                 >
                   Delete
                 </button>
@@ -126,12 +225,23 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
-        <div className="flex justify-center mt-8">
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`mx-1 px-4 py-2 rounded-lg ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'} font-medium transition duration-300 transform hover:scale-105`}
+              style={{
+                margin: '0 0.25rem',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                backgroundColor: currentPage === i + 1 ? '#3b82f6' : '#e5e7eb',
+                color: currentPage === i + 1 ? '#ffffff' : '#4b5563',
+                fontWeight: '500',
+                transition: 'background-color 0.3s, transform 0.3s',
+                cursor: 'pointer'
+              }}
+              onMouseOver={(e) => { if (currentPage !== i + 1) e.target.style.backgroundColor = '#d1d5db'; e.target.style.transform = 'scale(1.05)'; }}
+              onMouseOut={(e) => { if (currentPage !== i + 1) e.target.style.backgroundColor = '#e5e7eb'; e.target.style.transform = 'scale(1)'; }}
             >
               {i + 1}
             </button>
