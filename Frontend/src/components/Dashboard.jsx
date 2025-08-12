@@ -1,3 +1,4 @@
+// Updated Dashboard.jsx (to display subCategory)
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -118,7 +119,7 @@ const Dashboard = () => {
                 borderRadius: '0.5rem',
                 outline: 'none',
                 transition: 'border-color 0.3s, box-shadow 0.3s',
-                color: '#6b7280'
+                color: '#4b5563'
               }}
               onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
               onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
@@ -128,23 +129,20 @@ const Dashboard = () => {
               onChange={e => setCategoryFilter(e.target.value)}
               style={{
                 width: '100%',
-                maxWidth: '12rem',
+                maxWidth: '16rem',
                 padding: '0.75rem',
                 border: '1px solid #d1d5db',
                 borderRadius: '0.5rem',
                 outline: 'none',
-                backgroundColor: '#ffffff',
-                appearance: 'none',
-                transition: 'border-color 0.3s, box-shadow 0.3s'
+                transition: 'border-color 0.3s, box-shadow 0.3s',
+                color: '#4b5563'
               }}
               onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
               onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
             >
               <option value="">All Categories</option>
               {categories.map(cat => (
-                <option key={cat} value={cat} style={{ padding: '0.5rem' }}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
             <select
@@ -152,14 +150,13 @@ const Dashboard = () => {
               onChange={e => setStatusFilter(e.target.value)}
               style={{
                 width: '100%',
-                maxWidth: '12rem',
+                maxWidth: '16rem',
                 padding: '0.75rem',
                 border: '1px solid #d1d5db',
                 borderRadius: '0.5rem',
                 outline: 'none',
-                backgroundColor: '#ffffff',
-                appearance: 'none',
-                transition: 'border-color 0.3s, box-shadow 0.3s'
+                transition: 'border-color 0.3s, box-shadow 0.3s',
+                color: '#4b5563'
               }}
               onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
               onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
@@ -186,6 +183,7 @@ const Dashboard = () => {
               onMouseOut={(e) => { e.target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'; e.target.style.transform = 'translateY(0)'; }}
             >
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>Category: {problem.category}</h3>
+              {problem.subCategory && <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Subcategory: {problem.subCategory}</p>}
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Description: {problem.description}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>Start Time: {new Date(problem.startTime).toLocaleString()}</p>
               <p style={{ color: '#4b5563', marginBottom: '0.25rem' }}>End Time: {problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing'}</p>

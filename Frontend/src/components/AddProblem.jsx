@@ -1,3 +1,4 @@
+// Updated AddProblem.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +9,15 @@ const categories = [
   "Critical Server Room Alerts", "IDRAC Alerts", "Dialog", "SLT", "Citrix"
 ];
 
+const wanFirewallSubCategories = [
+  "Advatis", "Agro", "Fabric", "Haycarb", "Fiber", "Leisure", "Martin Bauer",
+  "DPL", "Alumex", "Aventura", "SAT", "Mabroc Tea"
+];
+
 const AddProblem = () => {
   const [formData, setFormData] = useState({
     category: '',
+    subCategory: '',
     description: '',
     startTime: '',
     endTime: '',
@@ -82,6 +89,34 @@ const AddProblem = () => {
             </option>
           ))}
         </select>
+        {formData.category === "WAN Firewalls" && (
+          <select
+            name="subCategory"
+            value={formData.subCategory}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              backgroundColor: '#ffffff',
+              appearance: 'none',
+              color: '#4b5563',
+              transition: 'border-color 0.3s, box-shadow 0.3s'
+            }}
+            required
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          >
+            <option value="" style={{ color: '#9ca3af' }}>Select Subcategory</option>
+            {wanFirewallSubCategories.map(sub => (
+              <option key={sub} value={sub} style={{ padding: '0.5rem', color: '#1f2937' }}>
+                {sub}
+              </option>
+            ))}
+          </select>
+        )}
         <input
           name="description"
           placeholder="Description"
