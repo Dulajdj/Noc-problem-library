@@ -15,6 +15,8 @@ const Dashboard = () => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [endDateFilter, setEndDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [dashboardData, setDashboardData] = useState({ totalProblems: 0, addedProblems: 0 });
   const itemsPerPage = 5;
@@ -26,7 +28,7 @@ const Dashboard = () => {
   const fetchProblems = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/problems');
-      console.log("Fetched problems data:", res.data); // Debug log to verify data
+      console.log("Fetched problems data:", res.data);
       setProblems(res.data);
       setFilteredProblems(res.data);
     } catch (err) {
@@ -48,13 +50,33 @@ const Dashboard = () => {
 
   useEffect(() => {
     let filtered = problems;
-    if (search) filtered = filtered.filter(p => p.description.toLowerCase().includes(search.toLowerCase()));
-    if (categoryFilter) filtered = filtered.filter(p => p.category === categoryFilter);
-    if (statusFilter === 'Open') filtered = filtered.filter(p => !p.endTime);
-    if (statusFilter === 'Closed') filtered = filtered.filter(p => p.endTime);
+    if (search) {
+      filtered = filtered.filter(p => p.description.toLowerCase().includes(search.toLowerCase()));
+    }
+    if (categoryFilter) {
+      filtered = filtered.filter(p => p.category === categoryFilter);
+    }
+    if (statusFilter === 'Open') {
+      filtered = filtered.filter(p => !p.endTime);
+    }
+    if (statusFilter === 'Closed') {
+      filtered = filtered.filter(p => p.endTime);
+    }
+    if (startDateFilter) {
+      filtered = filtered.filter(p => {
+        const start = new Date(p.startTime);
+        return start >= new Date(startDateFilter);
+      });
+    }
+    if (endDateFilter) {
+      filtered = filtered.filter(p => {
+        const start = new Date(p.startTime);
+        return start <= new Date(endDateFilter);
+      });
+    }
     setFilteredProblems(filtered);
     setCurrentPage(1);
-  }, [search, categoryFilter, statusFilter, problems]);
+  }, [search, categoryFilter, statusFilter, startDateFilter, endDateFilter, problems]);
 
   const handleDelete = async (id) => {
     try {
@@ -63,6 +85,11 @@ const Dashboard = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleResetFilters = () => {
+    setStartDateFilter('');
+    setEndDateFilter('');
   };
 
   const calculateDuration = (start, end) => {
@@ -89,7 +116,6 @@ const Dashboard = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Problems');
     
-    // Auto-size columns
     const colWidths = [
       { wch: 20 }, // Category
       { wch: 20 }, // SubCategory
@@ -151,10 +177,28 @@ const Dashboard = () => {
             <option value="Open">Open</option>
             <option value="Closed">Closed</option>
           </select>
+          <label style={{ display: 'block', color: '#2c3e50', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Start Date</label>
+          <input
+            type="datetime-local"
+            value={startDateFilter}
+            onChange={e => setStartDateFilter(e.target.value)}
+            style={{ width: '100%', padding: '0.6rem', marginBottom: '0.75rem', border: '1px solid #ddd', borderRadius: '0.375rem', fontSize: '0.9rem', transition: 'border-color 0.3s' }}
+            onFocus={(e) => e.target.style.borderColor = '#3498db'}
+            onBlur={(e) => e.target.style.borderColor = '#ddd'}
+          />
+          <label style={{ display: 'block', color: '#2c3e50', fontSize: '0.9rem', marginBottom: '0.25rem' }}>End Date</label>
+          <input
+            type="datetime-local"
+            value={endDateFilter}
+            onChange={e => setEndDateFilter(e.target.value)}
+            style={{ width: '100%', padding: '0.6rem', marginBottom: '0.75rem', border: '1px solid #ddd', borderRadius: '0.375rem', fontSize: '0.9rem', transition: 'border-color 0.3s' }}
+            onFocus={(e) => e.target.style.borderColor = '#3498db'}
+            onBlur={(e) => e.target.style.borderColor = '#ddd'}
+          />
           <button
-            onClick={downloadExcel}
+            onClick={handleResetFilters}
             style={{
-              background: '#10b981',
+              background: '#6b7280',
               color: '#fff',
               padding: '0.6rem',
               border: 'none',
@@ -163,21 +207,56 @@ const Dashboard = () => {
               cursor: 'pointer',
               fontSize: '0.9rem',
               fontWeight: '600',
+              marginBottom: '0.75rem',
               transition: 'background-color 0.3s, transform 0.3s'
             }}
-            onMouseOver={(e) => { e.target.style.backgroundColor = '#059669'; e.target.style.transform = 'scale(1.05)'; }}
-            onMouseOut={(e) => { e.target.style.backgroundColor = '#10b981'; e.target.style.transform = 'scale(1)'; }}
+            onMouseOver={(e) => { e.target.style.backgroundColor = '#4b5563'; e.target.style.transform = 'scale(1.05)'; }}
+            onMouseOut={(e) => { e.target.style.backgroundColor = '#6b7280'; e.target.style.transform = 'scale(1)'; }}
           >
-            Download as Excel
+            Reset Date Filters
           </button>
         </div>
       </div>
       <div style={{ flex: '3', background: '#ffffff', borderRadius: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
           <h1 style={{ fontSize: '1.8rem', fontWeight: '700', color: '#2c3e50' }}>NOC Problem Library Dashboard</h1>
-          <Link to="/add" style={{ background: '#3498db', color: '#fff', padding: '0.7rem 1.2rem', borderRadius: '0.375rem', textDecoration: 'none', transition: 'background-color 0.3s' }}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#2980b9'}
-            onMouseOut={(e) => e.target.style.backgroundColor = '#3498db'}>Add Problem</Link>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button
+              onClick={downloadExcel}
+              style={{
+                background: '#10b981',
+                color: '#fff',
+                padding: '0.7rem 1.2rem',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                transition: 'background-color 0.3s, transform 0.3s'
+              }}
+              onMouseOver={(e) => { e.target.style.backgroundColor = '#059669'; e.target.style.transform = 'scale(1.05)'; }}
+              onMouseOut={(e) => { e.target.style.backgroundColor = '#10b981'; e.target.style.transform = 'scale(1)'; }}
+            >
+              Download as Excel
+            </button>
+            <Link
+              to="/add"
+              style={{
+                background: '#3498db',
+                color: '#fff',
+                padding: '0.7rem 1.2rem',
+                borderRadius: '0.375rem',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                transition: 'background-color 0.3s, transform 0.3s'
+              }}
+              onMouseOver={(e) => { e.target.style.backgroundColor = '#2980b9'; e.target.style.transform = 'scale(1.05)'; }}
+              onMouseOut={(e) => { e.target.style.backgroundColor = '#3498db'; e.target.style.transform = 'scale(1)'; }}
+            >
+              Add Problem
+            </Link>
+          </div>
         </div>
         <div style={{ display: 'grid', gap: '1.2rem' }}>
           {paginatedProblems.map(problem => (
