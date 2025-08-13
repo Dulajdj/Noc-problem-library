@@ -14,6 +14,21 @@ const wanFirewallSubCategories = [
   "DPL", "Alumex", "Aventura", "SAT", "Mabroc Tea"
 ];
 
+const subcategoryEscalatedPersons = {
+  "Advantis": ["Sandun Pasqual", "Manjula Y.S.", "Dishan Udugamage", "Mahendra De Silva", "Gayan Senanayake"],
+  "Agro": ["Mariyo Dias", "Vipula Ramanayake", "Rannmal Kumara"],
+  "Fabric": ["Chamira Dias", "Tharanga Rodrigo", "Aruna Weerawardana"],
+  "Haycarb": ["Rasika Jayawardena", "Mahinda Rajasinghe", "Ashan Siriwrdana"],
+  "Fiber": ["Shirintha Rajakaruna", "Ranjith Premathilaka", "Malinga De Silva"],
+  "Leisure": ["Shiran Tissera", "Farhaan Fazan"],
+  "Martin Bauer": ["Susantha Marasinghe", "Yasiru Liyanage"],
+  "DPL": ["Indika Wickramaratna", "Janaka Perera"],
+  "Alumex": ["Lakmal Kuruppu", "Sachith Illeperuma"],
+  "Aventura": ["Sandeepa Perera", "Nadun Pahasar a"],
+  "SAT": ["Avindu Danthure", "Sameera Jayakody"],
+  "Mabroc Tea": ["Didula Jayasooriya", "Harindra Deepal"]
+};
+
 const accessPointSubCategories = [
   "Group_IT", "Advantis", "Haycarb", "Consumer", "Agro", "Leisure", "KVPL", "HPL", "Aventura",
   "Martin Bauer", "TTEL", "CPMD", "DPL", "Fibre"
@@ -28,7 +43,7 @@ const wanSubSubCategories = {
   "Agro": [
     "Agro-Quality Seeds Borlanda 2", "Agro-CocoLife Pannala", "Agro-Technica Ekala",
     "Agro-HJS", "Agro-Biotech Nanuoya", "Agro-Seeduwa", "Agro-Haychem Kottawa",
-    "Agro-Animal Health Sapugaskanda", "Agro-Pannipitiya", "Agro-Q.S Hokandara",
+    "Agro-Animal Health Sapugaskanda", "Agro-Pannipitiya", "Agro-QS_Hokandara",
     "Agro-Fertilizer", "Agro-Quality Seeds Borlanda 1"
   ],
   "Fabric": [
@@ -158,9 +173,9 @@ const AddProblem = () => {
         ...prev,
         [name]: value,
         ...(name === 'category' && value !== 'Other' && { customCategory: '' }),
-        ...(name === 'category' && { subCategory: '', customSubCategory: '', subSubCategory: '', customSubSubCategory: '', description: '' }),
+        ...(name === 'category' && { subCategory: '', customSubCategory: '', subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '' }),
         ...(name === 'subCategory' && value !== 'Other' && { customSubCategory: '' }),
-        ...(name === 'subCategory' && { subSubCategory: '', customSubSubCategory: '', description: '' }),
+        ...(name === 'subCategory' && { subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '' }),
         ...(name === 'subSubCategory' && value !== 'Other' && { customSubSubCategory: '' })
       };
       return newData;
@@ -434,9 +449,8 @@ const AddProblem = () => {
           onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
           onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
         />
-        <input
+        <select
           name="escalatedPerson"
-          placeholder="Escalated Person"
           value={formData.escalatedPerson}
           onChange={handleChange}
           style={{
@@ -445,12 +459,21 @@ const AddProblem = () => {
             border: '1px solid #d1d5db',
             borderRadius: '0.375rem',
             outline: 'none',
-            transition: 'border-color 0.3s, box-shadow 0.3s',
-            color: '#4b5563'
+            backgroundColor: '#ffffff',
+            appearance: 'none',
+            color: '#4b5563',
+            transition: 'border-color 0.3s, box-shadow 0.3s'
           }}
           onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
           onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
-        />
+        >
+          <option value="">Select Escalated Person</option>
+          {formData.subCategory && subcategoryEscalatedPersons[formData.subCategory] ? subcategoryEscalatedPersons[formData.subCategory].map(person => (
+            <option key={person} value={person} style={{ padding: '0.5rem', color: '#1f2937' }}>
+              Mr. {person}
+            </option>
+          )) : null}
+        </select>
         <textarea
           name="remarks"
           placeholder="Remarks"
