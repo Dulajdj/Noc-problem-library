@@ -21,14 +21,14 @@ const accessPointSubCategories = [
 
 const wanSubSubCategories = {
   "Advantis": [
-    "ADV-3PL-Kelaniya", "ADV-3PL-Kotugoda", "ADV-ExpeLogix",
+    "ADV-3PL-Kelaniya", "ADV-3PL-Kotugoda", "ADV-Expelogixs",
     "ADV-Hayleys Free Zone 1- Venus", "ADV-Hayleys Free Zone 2- Mecury",
     "ADV-Logiwiz Kelanimulla"
   ],
   "Agro": [
     "Agro-Quality Seeds Borlanda 2", "Agro-CocoLife Pannala", "Agro-Technica Ekala",
     "Agro-HJS", "Agro-Biotech Nanuoya", "Agro-Seeduwa", "Agro-Haychem Kottawa",
-    "Agro-Animal Health Sapugaskanda", "Agro-Pannipitiya", "Agro-Q.S Hokandara",
+    "Agro-Animal Health Sapugaskanda", "Agro-Pannipitiya", "Agro-QS_Hokandara",
     "Agro-Fertilizer", "Agro-Quality Seeds Borlanda 1"
   ],
   "Fabric": [
