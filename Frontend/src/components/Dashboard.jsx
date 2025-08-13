@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 const categories = [
   "Core Switch", "WAN Firewalls", "Perimeter Firewalls", "SAP Tunnels", "Access Switches",
@@ -71,6 +72,40 @@ const Dashboard = () => {
     return duration + ' minutes';
   };
 
+  const downloadExcel = () => {
+    const data = filteredProblems.map(problem => ({
+      Category: problem.category || 'N/A',
+      SubCategory: problem.subCategory || 'N/A',
+      SubSubCategory: problem.subSubCategory || 'N/A',
+      Description: problem.description || 'N/A',
+      'Start Time': problem.startTime ? new Date(problem.startTime).toLocaleString() : 'N/A',
+      'End Time': problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing',
+      Duration: calculateDuration(problem.startTime, problem.endTime),
+      'Escalated Person': problem.escalatedPerson || 'N/A',
+      Remarks: problem.remarks || 'N/A'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Problems');
+    
+    // Auto-size columns
+    const colWidths = [
+      { wch: 20 }, // Category
+      { wch: 20 }, // SubCategory
+      { wch: 30 }, // SubSubCategory
+      { wch: 50 }, // Description
+      { wch: 25 }, // Start Time
+      { wch: 25 }, // End Time
+      { wch: 15 }, // Duration
+      { wch: 20 }, // Escalated Person
+      { wch: 50 }  // Remarks
+    ];
+    worksheet['!cols'] = colWidths;
+
+    XLSX.writeFile(workbook, 'problems_export.xlsx');
+  };
+
   const paginatedProblems = filteredProblems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const totalPages = Math.ceil(filteredProblems.length / itemsPerPage);
 
@@ -108,7 +143,7 @@ const Dashboard = () => {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            style={{ width: '100%', padding: '0.6rem', border: '1px solid #ddd', borderRadius: '0.375rem', fontSize: '0.9rem', transition: 'border-color 0.3s' }}
+            style={{ width: '100%', padding: '0.6rem', marginBottom: '0.75rem', border: '1px solid #ddd', borderRadius: '0.375rem', fontSize: '0.9rem', transition: 'border-color 0.3s' }}
             onFocus={(e) => e.target.style.borderColor = '#3498db'}
             onBlur={(e) => e.target.style.borderColor = '#ddd'}
           >
@@ -116,6 +151,25 @@ const Dashboard = () => {
             <option value="Open">Open</option>
             <option value="Closed">Closed</option>
           </select>
+          <button
+            onClick={downloadExcel}
+            style={{
+              background: '#10b981',
+              color: '#fff',
+              padding: '0.6rem',
+              border: 'none',
+              borderRadius: '0.375rem',
+              width: '100%',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              transition: 'background-color 0.3s, transform 0.3s'
+            }}
+            onMouseOver={(e) => { e.target.style.backgroundColor = '#059669'; e.target.style.transform = 'scale(1.05)'; }}
+            onMouseOut={(e) => { e.target.style.backgroundColor = '#10b981'; e.target.style.transform = 'scale(1)'; }}
+          >
+            Download as Excel
+          </button>
         </div>
       </div>
       <div style={{ flex: '3', background: '#ffffff', borderRadius: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '1.5rem' }}>

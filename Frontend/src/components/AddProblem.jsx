@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const categories = [
   "Core Switch", "WAN Firewalls", "Perimeter Firewalls", "SAP Tunnels", "Access Switches",
   "Access Points", "Virtual Machines - VCenter", "Backup Servers - Avamar",
-  "Critical Alerts","Server Room Alerts", "IDRAC Alerts", "Dialog", "SLT", "Citrix"
+  "Critical Alerts", "Server Room Alerts", "IDRAC Alerts", "Dialog", "SLT", "Citrix"
 ];
 
 const wanFirewallSubCategories = [
@@ -21,14 +21,14 @@ const accessPointSubCategories = [
 
 const wanSubSubCategories = {
   "Advantis": [
-    "ADV-3PL-Kelaniya", "ADV-3PL-Kotugoda", "ADV-Expelogixs",
+    "ADV-3PL-Kelaniya", "ADV-3PL-Kotugoda", "ADV-ExpeLogix",
     "ADV-Hayleys Free Zone 1- Venus", "ADV-Hayleys Free Zone 2- Mecury",
     "ADV-Logiwiz Kelanimulla"
   ],
   "Agro": [
     "Agro-Quality Seeds Borlanda 2", "Agro-CocoLife Pannala", "Agro-Technica Ekala",
     "Agro-HJS", "Agro-Biotech Nanuoya", "Agro-Seeduwa", "Agro-Haychem Kottawa",
-    "Agro-Animal Health Sapugaskanda", "Agro-Pannipitiya", "Agro-QS_Hokandara",
+    "Agro-Animal Health Sapugaskanda", "Agro-Pannipitiya", "Agro-Q.S Hokandara",
     "Agro-Fertilizer", "Agro-Quality Seeds Borlanda 1"
   ],
   "Fabric": [
@@ -199,7 +199,6 @@ const AddProblem = () => {
       navigate('/');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Failed to add problem");
     }
   };
 
@@ -223,7 +222,7 @@ const AddProblem = () => {
         marginBottom: '1rem',
         color: '#1f2937',
         textAlign: 'center'
-      }}>Add New Problem</h2>
+      }}>Add Problem</h2>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <select
           name="category"

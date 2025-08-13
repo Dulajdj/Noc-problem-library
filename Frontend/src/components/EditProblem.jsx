@@ -248,8 +248,7 @@ const EditProblem = () => {
       await axios.put(`http://localhost:5000/api/problems/${id}`, dataToSend);
       navigate('/');
     } catch (err) {
-      console.error(err.response?.data || err);
-      alert(err.response?.data?.message || "Update failed");
+      console.error(err);
     }
   };
 
