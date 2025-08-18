@@ -9,6 +9,140 @@ const categories = [
   "Critical Alerts", "Server Room Alerts", "IDRAC Alerts", "Dialog", "SLT", "Citrix"
 ];
 
+const Modal = ({ isOpen, onClose, onConfirm, message, isSuccess }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+      animation: 'fadeIn 0.3s ease-out'
+    }}>
+      <div style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '1rem',
+        padding: '2rem',
+        maxWidth: '28rem',
+        width: '90%',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+        textAlign: 'center',
+        transform: isOpen ? 'scale(1)' : 'scale(0.95)',
+        opacity: isOpen ? 1 : 0,
+        transition: 'transform 0.3s ease-out, opacity 0.3s ease-out'
+      }}>
+        <h3 style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: isSuccess ? '#10b981' : '#2c3e50',
+          marginBottom: '1rem'
+        }}>{isSuccess ? 'Success' : 'Confirm Deletion'}</h3>
+        <p style={{
+          color: '#4b5563',
+          marginBottom: '2rem',
+          fontSize: '1.1rem',
+          lineHeight: '1.5'
+        }}>{message}</p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          {isSuccess ? (
+            <button
+              onClick={onClose}
+              style={{
+                background: '#3498db',
+                color: '#fff',
+                padding: '0.75rem 1.5rem',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '600',
+                transition: 'background-color 0.3s, transform 0.2s, box-shadow 0.2s',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.backgroundColor = '#2980b9';
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = '#3498db';
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+              }}
+            >
+              OK
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={onConfirm}
+                style={{
+                  background: '#e74c3c',
+                  color: '#fff',
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  transition: 'background-color 0.3s, transform 0.2s, box-shadow 0.2s',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.backgroundColor = '#c0392b';
+                  e.target.style.transform = 'scale(1.05)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.backgroundColor = '#e74c3c';
+                  e.target.style.transform = 'scale(1)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                }}
+              >
+                Delete
+              </button>
+              <button
+                onClick={onClose}
+                style={{
+                  background: '#6b7280',
+                  color: '#fff',
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  transition: 'background-color 0.3s, transform 0.2s, box-shadow 0.2s',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.backgroundColor = '#4b5563';
+                  e.target.style.transform = 'scale(1.05)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.backgroundColor = '#6b7280';
+                  e.target.style.transform = 'scale(1)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                }}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const [problems, setProblems] = useState([]);
   const [filteredProblems, setFilteredProblems] = useState([]);
@@ -19,6 +153,12 @@ const Dashboard = () => {
   const [endDateFilter, setEndDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [dashboardData, setDashboardData] = useState({ totalProblems: 0, addedProblems: 0 });
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    message: '',
+    isSuccess: false,
+    onConfirm: null
+  });
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -78,13 +218,36 @@ const Dashboard = () => {
     setCurrentPage(1);
   }, [search, categoryFilter, statusFilter, startDateFilter, endDateFilter, problems]);
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/problems/${id}`);
-      fetchProblems();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDelete = (id) => {
+    setModalState({
+      isOpen: true,
+      message: 'Are you sure you want to delete this problem?',
+      isSuccess: false,
+      onConfirm: async () => {
+        try {
+          await axios.delete(`http://localhost:5000/api/problems/${id}`);
+          await fetchProblems();
+          setModalState({
+            isOpen: true,
+            message: 'Problem deleted successfully!',
+            isSuccess: true,
+            onConfirm: null
+          });
+        } catch (err) {
+          console.error("Error deleting problem:", err);
+          setModalState({
+            isOpen: true,
+            message: 'Failed to delete problem. Please try again.',
+            isSuccess: true, // Using success modal for error to keep UI consistent
+            onConfirm: null
+          });
+        }
+      }
+    });
+  };
+
+  const closeModal = () => {
+    setModalState({ isOpen: false, message: '', isSuccess: false, onConfirm: null });
   };
 
   const handleResetFilters = () => {
@@ -137,6 +300,13 @@ const Dashboard = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #e0eafc, #cfdef3)', padding: '1.5rem', fontFamily: 'Georgia, serif', display: 'flex', gap: '1.5rem' }}>
+      <Modal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        onConfirm={modalState.onConfirm}
+        message={modalState.message}
+        isSuccess={modalState.isSuccess}
+      />
       <div style={{ flex: '1', maxWidth: '14rem', background: '#ffffff', borderRadius: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '1.5rem' }}>
         <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
           <img src="/Fentons IT Logo.png" alt="Fentons IT Logo" style={{ width: '100%', marginBottom: '1rem' }} />
