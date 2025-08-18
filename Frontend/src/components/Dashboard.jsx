@@ -265,8 +265,8 @@ const Dashboard = () => {
   const downloadExcel = () => {
     const data = filteredProblems.map(problem => ({
       Category: problem.category || 'N/A',
-      SubCategory: problem.subCategory || 'N/A',
-      SubSubCategory: problem.subSubCategory || 'N/A',
+      SectorName: problem.subCategory || 'N/A',
+      SectorFirewallName: problem.subSubCategory || 'N/A',
       Description: problem.description || 'N/A',
       'Start Time': problem.startTime ? new Date(problem.startTime).toLocaleString() : 'N/A',
       'End Time': problem.endTime ? new Date(problem.endTime).toLocaleString() : 'Ongoing',

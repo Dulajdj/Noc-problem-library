@@ -1,4 +1,3 @@
-// Updated EditProblem.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -166,6 +165,11 @@ const EditProblem = () => {
   });
   const { id } = useParams();
   const navigate = useNavigate();
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    message: '',
+    isSuccess: false
+  });
 
   useEffect(() => {
     fetchProblem();
@@ -261,16 +265,99 @@ const EditProblem = () => {
         remarks: formData.remarks
       };
       await axios.put(`http://localhost:5000/api/problems/${id}`, dataToSend);
-      navigate('/');
+      setModalState({
+        isOpen: true,
+        message: 'Successfully updated!!!',
+        isSuccess: true
+      });
     } catch (err) {
       console.error(err);
+      setModalState({
+        isOpen: true,
+        message: 'We couldn’t update just now. Please try again gently later.',
+        isSuccess: false
+      });
     }
   };
 
-  const isWanFirewall = formData.category === "WAN Firewalls";
-  const isAccessPoints = formData.category === "Access Points";
+  const closeModal = () => {
+    setModalState({ isOpen: false, message: '', isSuccess: false });
+    if (modalState.isSuccess) {
+      navigate('/');
+    }
+  };
+
+  const isWanFirewall = formData.category === "WAN Firewalls" || (formData.category === 'Other' && formData.customCategory === "WAN Firewalls");
+  const isAccessPoints = formData.category === "Access Points" || (formData.category === 'Other' && formData.customCategory === "Access Points");
   const currentSubCategories = isWanFirewall ? wanFirewallSubCategories : isAccessPoints ? accessPointSubCategories : [];
   const currentSubSubs = isWanFirewall ? wanSubSubCategories[formData.subCategory] || [] : isAccessPoints ? accessPointSubSubCategories[formData.subCategory] || [] : [];
+
+  const Modal = ({ isOpen, onClose, message, isSuccess }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+        animation: 'fadeIn 0.3s ease-out'
+      }}>
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '0.5rem',
+          padding: '1.5rem',
+          maxWidth: '24rem',
+          width: '90%',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          transform: isOpen ? 'scale(1)' : 'scale(0.9)',
+          opacity: isOpen ? 1 : 0,
+          transition: 'transform 0.3s ease-out, opacity 0.3s ease-out'
+        }}>
+          <h3 style={{
+            fontSize: '1.5rem',
+            fontWeight: '600',
+            color: isSuccess ? '#2ecc71' : '#e74c3c',
+            marginBottom: '1rem'
+          }}>{isSuccess ? 'Success!' : 'Error!'}</h3>
+          <p style={{
+            color: '#333333',
+            marginBottom: '1.5rem',
+            fontSize: '1.1rem',
+            lineHeight: '1.5'
+          }}>{message}</p>
+          <button
+            onClick={onClose}
+            style={{
+              backgroundColor: isSuccess ? '#2ecc71' : '#e74c3c',
+              color: '#ffffff',
+              padding: '0.5rem 1.5rem',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              transition: 'background-color 0.3s'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = isSuccess ? '#27ae60' : '#c0392b';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = isSuccess ? '#2ecc71' : '#e74c3c';
+            }}
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div style={{
@@ -281,6 +368,20 @@ const EditProblem = () => {
       borderRadius: '0.75rem',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     }}>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+        `}
+      </style>
+      <Modal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        message={modalState.message}
+        isSuccess={modalState.isSuccess}
+      />
       <h2 style={{
         fontSize: '1.25rem',
         fontWeight: '700',
