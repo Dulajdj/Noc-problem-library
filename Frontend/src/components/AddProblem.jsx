@@ -1,4 +1,3 @@
-// Updated AddProblem.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +13,14 @@ const wanFirewallSubCategories = [
   "DPL", "Alumex", "Aventura", "SAT", "Mabroc Tea"
 ];
 
+const accessPointSubCategories = [
+  "Group_IT", "Advantis", "Haycarb", "Consumer", "Agro", "Leisure", "KVPL", "HPL", "Aventura",
+  "Martin Bauer", "TTEL", "CPMD", "DPL", "Fibre"
+];
+
+// Define escalated persons for all categories' subcategories
 const subcategoryEscalatedPersons = {
+  // WAN Firewalls subcategories
   "Advantis": ["Sandun Pasqual", "Manjula Y.S.", "Dishan Udugamage", "Mahendra De Silva", "Gayan Senanayake"],
   "Agro": ["Mariyo Dias", "Vipula Ramanayake", "Rannmal Kumara"],
   "Fabric": ["Chamira Dias", "Tharanga Rodrigo", "Aruna Weerawardana"],
@@ -26,13 +32,29 @@ const subcategoryEscalatedPersons = {
   "Alumex": ["Lakmal Kuruppu", "Sachith Illeperuma"],
   "Aventura": ["Sandeepa Perera", "Nadun Pahasar a"],
   "SAT": ["Avindu Danthure", "Sameera Jayakody"],
-  "Mabroc Tea": ["Didula Jayasooriya", "Harindra Deepal"]
+  "Mabroc Tea": ["Didula Jayasooriya", "Harindra Deepal"],
+  // Access Points subcategories (reusing same persons for overlapping subcategories)
+  "Group_IT": ["Sandun Pasqual", "Manjula Y.S."],
+  "Consumer": ["Mariyo Dias", "Vipula Ramanayake"],
+  "KVPL": ["Chamira Dias", "Tharanga Rodrigo"],
+  "HPL": ["Rasika Jayawardena", "Mahinda Rajasinghe"],
+  "TTEL": ["Shirintha Rajakaruna", "Ranjith Premathilaka"],
+  "CPMD": ["Shiran Tissera", "Farhaan Fazan"],
+  "Fibre": ["Indika Wickramaratna", "Janaka Perera"],
+  // Other categories can reuse or define new escalated persons
+  "Core Switch": ["John Doe", "Jane Smith"],
+  "Perimeter Firewalls": ["Alice Brown", "Bob Johnson"],
+  "SAP Tunnels": ["Charlie Davis", "Emma Wilson"],
+  "Access Switches": ["Frank Miller", "Grace Lee"],
+  "Virtual Machines - VCenter": ["Henry Taylor", "Isabella Moore"],
+  "Backup Servers - Avamar": ["James Anderson", "Kelly White"],
+  "Critical Alerts": ["Liam Harris", "Mia Clark"],
+  "Server Room Alerts": ["Noah Lewis", "Olivia Walker"],
+  "IDRAC Alerts": ["Peter Allen", "Quinn Young"],
+  "Dialog": ["Rachel King", "Samuel Scott"],
+  "SLT": ["Thomas Adams", "Uma Green"],
+  "Citrix": ["Victor Hall", "Wendy Turner"]
 };
-
-const accessPointSubCategories = [
-  "Group_IT", "Advantis", "Haycarb", "Consumer", "Agro", "Leisure", "KVPL", "HPL", "Aventura",
-  "Martin Bauer", "TTEL", "CPMD", "DPL", "Fibre"
-];
 
 const wanSubSubCategories = {
   "Advantis": [
@@ -192,8 +214,6 @@ const AddProblem = () => {
       if (formData.subSubCategory !== 'Other' || (formData.subSubCategory === 'Other' && formData.customSubSubCategory)) {
         setFormData(prev => ({ ...prev, description: autoDesc }));
       }
-    } else if (formData.description && (formData.subCategory === 'Other' || formData.subSubCategory === 'Other')) {
-      // Don't auto-set if any is Other, allow manual
     }
   }, [formData.subCategory, formData.subSubCategory, formData.customSubSubCategory]);
 
@@ -221,6 +241,9 @@ const AddProblem = () => {
   const isAccessPoints = formData.category === "Access Points";
   const currentSubCategories = isWanFirewall ? wanFirewallSubCategories : isAccessPoints ? accessPointSubCategories : [];
   const currentSubSubs = isWanFirewall ? wanSubSubCategories[formData.subCategory] || [] : isAccessPoints ? accessPointSubSubCategories[formData.subCategory] || [] : [];
+
+  // Determine if escalatedPerson should be a dropdown or text input
+  const isEscalatedPersonDropdown = formData.category !== 'Other' && formData.subCategory !== 'Other' && subcategoryEscalatedPersons[formData.subCategory];
 
   return (
     <div style={{
@@ -449,31 +472,51 @@ const AddProblem = () => {
           onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
           onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
         />
-        <select
-          name="escalatedPerson"
-          value={formData.escalatedPerson}
-          onChange={handleChange}
-          style={{
-            padding: '0.5rem',
-            width: '100%',
-            border: '1px solid #d1d5db',
-            borderRadius: '0.375rem',
-            outline: 'none',
-            backgroundColor: '#ffffff',
-            appearance: 'none',
-            color: '#4b5563',
-            transition: 'border-color 0.3s, box-shadow 0.3s'
-          }}
-          onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
-          onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
-        >
-          <option value="">Select Escalated Person</option>
-          {formData.subCategory && subcategoryEscalatedPersons[formData.subCategory] ? subcategoryEscalatedPersons[formData.subCategory].map(person => (
-            <option key={person} value={person} style={{ padding: '0.5rem', color: '#1f2937' }}>
-              Mr. {person}
-            </option>
-          )) : null}
-        </select>
+        {isEscalatedPersonDropdown ? (
+          <select
+            name="escalatedPerson"
+            value={formData.escalatedPerson}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              backgroundColor: '#ffffff',
+              appearance: 'none',
+              color: '#4b5563',
+              transition: 'border-color 0.3s, box-shadow 0.3s'
+            }}
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          >
+            <option value="">Select Escalated Person</option>
+            {subcategoryEscalatedPersons[formData.subCategory].map(person => (
+              <option key={person} value={person} style={{ padding: '0.5rem', color: '#1f2937' }}>
+                Mr. {person}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            name="escalatedPerson"
+            placeholder="Enter Escalated Person"
+            value={formData.escalatedPerson}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              transition: 'border-color 0.3s, box-shadow 0.3s',
+              color: '#4b5563'
+            }}
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          />
+        )}
         <textarea
           name="remarks"
           placeholder="Remarks"
