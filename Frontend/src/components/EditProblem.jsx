@@ -161,6 +161,7 @@ const EditProblem = () => {
     startTime: '',
     endTime: '',
     escalatedPerson: '',
+    customEscalatedPerson: '',
     remarks: ''
   });
   const { id } = useParams();
@@ -174,6 +175,11 @@ const EditProblem = () => {
   useEffect(() => {
     fetchProblem();
   }, []);
+
+  const formatLocalDateTime = (date) => {
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
 
   const fetchProblem = async () => {
     try {
@@ -202,6 +208,16 @@ const EditProblem = () => {
           subSubCategory = 'Other';
         }
       }
+      let escalatedPerson = res.data.escalatedPerson || '';
+      let customEscalatedPerson = '';
+      if (isEscalatedPersonDropdown && !subcategoryEscalatedPersons[res.data.subCategory].includes(escalatedPerson)) {
+        customEscalatedPerson = escalatedPerson;
+        escalatedPerson = 'Other';
+      }
+      const startDate = res.data.startTime ? new Date(res.data.startTime) : null;
+      const endDate = res.data.endTime ? new Date(res.data.endTime) : null;
+      const startTime = startDate ? formatLocalDateTime(startDate) : '';
+      const endTime = endDate ? formatLocalDateTime(endDate) : '';
       setFormData({
         category,
         customCategory,
@@ -210,9 +226,10 @@ const EditProblem = () => {
         subSubCategory,
         customSubSubCategory,
         description: res.data.description || '',
-        startTime: res.data.startTime ? new Date(res.data.startTime).toISOString().slice(0, 16) : '',
-        endTime: res.data.endTime ? new Date(res.data.endTime).toISOString().slice(0, 16) : '',
-        escalatedPerson: res.data.escalatedPerson || '',
+        startTime,
+        endTime,
+        escalatedPerson,
+        customEscalatedPerson,
         remarks: res.data.remarks || ''
       });
     } catch (err) {
@@ -227,10 +244,11 @@ const EditProblem = () => {
         ...prev,
         [name]: value,
         ...(name === 'category' && value !== 'Other' && { customCategory: '' }),
-        ...(name === 'category' && { subCategory: '', customSubCategory: '', subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '' }),
+        ...(name === 'category' && { subCategory: '', customSubCategory: '', subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '', customEscalatedPerson: '' }),
         ...(name === 'subCategory' && value !== 'Other' && { customSubCategory: '' }),
-        ...(name === 'subCategory' && { subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '' }),
-        ...(name === 'subSubCategory' && value !== 'Other' && { customSubSubCategory: '' })
+        ...(name === 'subCategory' && { subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '', customEscalatedPerson: '' }),
+        ...(name === 'subSubCategory' && value !== 'Other' && { customSubSubCategory: '' }),
+        ...(name === 'escalatedPerson' && value !== 'Other' && { customEscalatedPerson: '' })
       };
       return newData;
     });
@@ -247,7 +265,6 @@ const EditProblem = () => {
         setFormData(prev => ({ ...prev, description: autoDesc }));
       }
     } else if (formData.description && (formData.subCategory === 'Other' || formData.subSubCategory === 'Other')) {
-      // Don't auto-set if any is Other, allow manual
     }
   }, [formData.subCategory, formData.subSubCategory, formData.customSubSubCategory]);
 
@@ -261,29 +278,13 @@ const EditProblem = () => {
         description: formData.description,
         startTime: formData.startTime ? new Date(formData.startTime).toISOString() : undefined,
         endTime: formData.endTime ? new Date(formData.endTime).toISOString() : undefined,
-        escalatedPerson: formData.escalatedPerson,
+        escalatedPerson: formData.escalatedPerson === 'Other' ? formData.customEscalatedPerson : formData.escalatedPerson,
         remarks: formData.remarks
       };
       await axios.put(`http://localhost:5000/api/problems/${id}`, dataToSend);
-      setModalState({
-        isOpen: true,
-        message: 'Successfully updated!!!',
-        isSuccess: true
-      });
+      navigate('/');
     } catch (err) {
       console.error(err);
-      setModalState({
-        isOpen: true,
-        message: 'We couldn’t update just now. Please try again gently later.',
-        isSuccess: false
-      });
-    }
-  };
-
-  const closeModal = () => {
-    setModalState({ isOpen: false, message: '', isSuccess: false });
-    if (modalState.isSuccess) {
-      navigate('/');
     }
   };
 
@@ -291,105 +292,12 @@ const EditProblem = () => {
   const isAccessPoints = formData.category === "Access Points" || (formData.category === 'Other' && formData.customCategory === "Access Points");
   const currentSubCategories = isWanFirewall ? wanFirewallSubCategories : isAccessPoints ? accessPointSubCategories : [];
   const currentSubSubs = isWanFirewall ? wanSubSubCategories[formData.subCategory] || [] : isAccessPoints ? accessPointSubSubCategories[formData.subCategory] || [] : [];
-
-  const Modal = ({ isOpen, onClose, message, isSuccess }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
-        animation: 'fadeIn 0.3s ease-out'
-      }}>
-        <div style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '0.5rem',
-          padding: '1.5rem',
-          maxWidth: '24rem',
-          width: '90%',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-          textAlign: 'center',
-          transform: isOpen ? 'scale(1)' : 'scale(0.9)',
-          opacity: isOpen ? 1 : 0,
-          transition: 'transform 0.3s ease-out, opacity 0.3s ease-out'
-        }}>
-          <h3 style={{
-            fontSize: '1.5rem',
-            fontWeight: '600',
-            color: isSuccess ? '#2ecc71' : '#e74c3c',
-            marginBottom: '1rem'
-          }}>{isSuccess ? 'Success!' : 'Error!'}</h3>
-          <p style={{
-            color: '#333333',
-            marginBottom: '1.5rem',
-            fontSize: '1.1rem',
-            lineHeight: '1.5'
-          }}>{message}</p>
-          <button
-            onClick={onClose}
-            style={{
-              backgroundColor: isSuccess ? '#2ecc71' : '#e74c3c',
-              color: '#ffffff',
-              padding: '0.5rem 1.5rem',
-              border: 'none',
-              borderRadius: '0.375rem',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              transition: 'background-color 0.3s'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.backgroundColor = isSuccess ? '#27ae60' : '#c0392b';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.backgroundColor = isSuccess ? '#2ecc71' : '#e74c3c';
-            }}
-          >
-            OK
-          </button>
-        </div>
-      </div>
-    );
-  };
+  const isEscalatedPersonDropdown = formData.subCategory && subcategoryEscalatedPersons[formData.subCategory];
 
   return (
-    <div style={{
-      padding: '1rem',
-      maxWidth: '28rem',
-      margin: '0 auto',
-      backgroundColor: '#ffffff',
-      borderRadius: '0.75rem',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-    }}>
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-        `}
-      </style>
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        message={modalState.message}
-        isSuccess={modalState.isSuccess}
-      />
-      <h2 style={{
-        fontSize: '1.25rem',
-        fontWeight: '700',
-        marginBottom: '1rem',
-        color: '#1f2937',
-        textAlign: 'center'
-      }}>Edit Problem</h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ maxWidth: '40rem', margin: '2rem auto', padding: '2rem', background: '#f9fafb', borderRadius: '0.75rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+      <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: '700', color: '#2c3e50', marginBottom: '1.5rem' }}>Edit Problem</h2>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <select
           name="category"
           value={formData.category}
@@ -437,7 +345,7 @@ const EditProblem = () => {
             onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
           />
         )}
-        {(isWanFirewall || isAccessPoints) && (
+        {currentSubCategories.length > 0 && (
           <select
             name="subCategory"
             value={formData.subCategory}
@@ -553,6 +461,12 @@ const EditProblem = () => {
           onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
           onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
         />
+        <label style={{
+          display: 'block',
+          marginBottom: '0.25rem',
+          fontWeight: '600',
+          color: '#1f2937'
+        }}>Start Date & Time</label>
         <input
           name="startTime"
           type="datetime-local"
@@ -571,6 +485,12 @@ const EditProblem = () => {
           onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
           onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
         />
+        <label style={{
+          display: 'block',
+          marginBottom: '0.25rem',
+          fontWeight: '600',
+          color: '#1f2937'
+        }}>End Date & Time</label>
         <input
           name="endTime"
           type="datetime-local"
@@ -588,31 +508,72 @@ const EditProblem = () => {
           onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
           onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
         />
-        <select
-          name="escalatedPerson"
-          value={formData.escalatedPerson}
-          onChange={handleChange}
-          style={{
-            padding: '0.5rem',
-            width: '100%',
-            border: '1px solid #d1d5db',
-            borderRadius: '0.375rem',
-            outline: 'none',
-            backgroundColor: '#ffffff',
-            appearance: 'none',
-            color: '#4b5563',
-            transition: 'border-color 0.3s, box-shadow 0.3s'
-          }}
-          onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
-          onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
-        >
-          <option value="">Select Escalated Person</option>
-          {formData.subCategory && subcategoryEscalatedPersons[formData.subCategory] ? subcategoryEscalatedPersons[formData.subCategory].map(person => (
-            <option key={person} value={person} style={{ padding: '0.5rem', color: '#1f2937' }}>
-              Mr. {person}
-            </option>
-          )) : null}
-        </select>
+        {isEscalatedPersonDropdown ? (
+          <select
+            name="escalatedPerson"
+            value={formData.escalatedPerson}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              backgroundColor: '#ffffff',
+              appearance: 'none',
+              color: '#4b5563',
+              transition: 'border-color 0.3s, box-shadow 0.3s'
+            }}
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          >
+            <option value="">Select Escalated Person</option>
+            {subcategoryEscalatedPersons[formData.subCategory].map(person => (
+              <option key={person} value={person} style={{ padding: '0.5rem', color: '#1f2937' }}>
+                Mr. {person}
+              </option>
+            ))}
+            <option value="Other">Other</option>
+          </select>
+        ) : (
+          <input
+            name="escalatedPerson"
+            placeholder="Enter Escalated Person"
+            value={formData.escalatedPerson}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              transition: 'border-color 0.3s, box-shadow 0.3s',
+              color: '#4b5563'
+            }}
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          />
+        )}
+        {formData.escalatedPerson === 'Other' && (
+          <input
+            name="customEscalatedPerson"
+            placeholder="Specify Escalated Person"
+            value={formData.customEscalatedPerson}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              transition: 'border-color 0.3s, box-shadow 0.3s',
+              color: '#4b5563'
+            }}
+            required
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          />
+        )}
         <textarea
           name="remarks"
           placeholder="Remarks"

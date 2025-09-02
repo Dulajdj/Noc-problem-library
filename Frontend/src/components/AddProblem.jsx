@@ -18,9 +18,7 @@ const accessPointSubCategories = [
   "Martin Bauer", "TTEL", "CPMD", "DPL", "Fibre"
 ];
 
-// Define escalated persons for all categories' subcategories
 const subcategoryEscalatedPersons = {
-  // WAN Firewalls subcategories
   "Advantis": ["Sandun Pasqual", "Manjula Y.S.", "Dishan Udugamage", "Mahendra De Silva", "Gayan Senanayake"],
   "Agro": ["Mariyo Dias", "Vipula Ramanayake", "Rannmal Kumara"],
   "Fabric": ["Chamira Dias", "Tharanga Rodrigo", "Aruna Weerawardana"],
@@ -33,7 +31,6 @@ const subcategoryEscalatedPersons = {
   "Aventura": ["Sandeepa Perera", "Nadun Pahasar a"],
   "SAT": ["Avindu Danthure", "Sameera Jayakody"],
   "Mabroc Tea": ["Didula Jayasooriya", "Harindra Deepal"],
-  // Access Points subcategories (reusing same persons for overlapping subcategories)
   "Group_IT": ["Sandun Pasqual", "Manjula Y.S."],
   "Consumer": ["Mariyo Dias", "Vipula Ramanayake"],
   "KVPL": ["Chamira Dias", "Tharanga Rodrigo"],
@@ -41,7 +38,6 @@ const subcategoryEscalatedPersons = {
   "TTEL": ["Shirintha Rajakaruna", "Ranjith Premathilaka"],
   "CPMD": ["Shiran Tissera", "Farhaan Fazan"],
   "Fibre": ["Indika Wickramaratna", "Janaka Perera"],
-  // Other categories can reuse or define new escalated persons
   "Core Switch": ["John Doe", "Jane Smith"],
   "Perimeter Firewalls": ["Alice Brown", "Bob Johnson"],
   "SAP Tunnels": ["Charlie Davis", "Emma Wilson"],
@@ -184,6 +180,7 @@ const AddProblem = () => {
     startTime: '',
     endTime: '',
     escalatedPerson: '',
+    customEscalatedPerson: '',
     remarks: ''
   });
   const navigate = useNavigate();
@@ -195,10 +192,11 @@ const AddProblem = () => {
         ...prev,
         [name]: value,
         ...(name === 'category' && value !== 'Other' && { customCategory: '' }),
-        ...(name === 'category' && { subCategory: '', customSubCategory: '', subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '' }),
+        ...(name === 'category' && { subCategory: '', customSubCategory: '', subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '', customEscalatedPerson: '' }),
         ...(name === 'subCategory' && value !== 'Other' && { customSubCategory: '' }),
-        ...(name === 'subCategory' && { subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '' }),
-        ...(name === 'subSubCategory' && value !== 'Other' && { customSubSubCategory: '' })
+        ...(name === 'subCategory' && { subSubCategory: '', customSubSubCategory: '', description: '', escalatedPerson: '', customEscalatedPerson: '' }),
+        ...(name === 'subSubCategory' && value !== 'Other' && { customSubSubCategory: '' }),
+        ...(name === 'escalatedPerson' && value !== 'Other' && { customEscalatedPerson: '' })
       };
       return newData;
     });
@@ -227,7 +225,7 @@ const AddProblem = () => {
         description: formData.description,
         startTime: formData.startTime ? new Date(formData.startTime).toISOString() : undefined,
         endTime: formData.endTime ? new Date(formData.endTime).toISOString() : undefined,
-        escalatedPerson: formData.escalatedPerson,
+        escalatedPerson: formData.escalatedPerson === 'Other' ? formData.customEscalatedPerson : formData.escalatedPerson,
         remarks: formData.remarks
       };
       await axios.post('http://localhost:5000/api/problems', dataToSend);
@@ -237,31 +235,16 @@ const AddProblem = () => {
     }
   };
 
-  const isWanFirewall = formData.category === "WAN Firewalls";
-  const isAccessPoints = formData.category === "Access Points";
+  const isWanFirewall = formData.category === "WAN Firewalls" || (formData.category === 'Other' && formData.customCategory === "WAN Firewalls");
+  const isAccessPoints = formData.category === "Access Points" || (formData.category === 'Other' && formData.customCategory === "Access Points");
   const currentSubCategories = isWanFirewall ? wanFirewallSubCategories : isAccessPoints ? accessPointSubCategories : [];
   const currentSubSubs = isWanFirewall ? wanSubSubCategories[formData.subCategory] || [] : isAccessPoints ? accessPointSubSubCategories[formData.subCategory] || [] : [];
-
-  // Determine if escalatedPerson should be a dropdown or text input
-  const isEscalatedPersonDropdown = formData.category !== 'Other' && formData.subCategory !== 'Other' && subcategoryEscalatedPersons[formData.subCategory];
+  const isEscalatedPersonDropdown = formData.subCategory && subcategoryEscalatedPersons[formData.subCategory];
 
   return (
-    <div style={{
-      padding: '1rem',
-      maxWidth: '28rem',
-      margin: '0 auto',
-      backgroundColor: '#ffffff',
-      borderRadius: '0.75rem',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-    }}>
-      <h2 style={{
-        fontSize: '1.25rem',
-        fontWeight: '700',
-        marginBottom: '1rem',
-        color: '#1f2937',
-        textAlign: 'center'
-      }}>Add Problem</h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ maxWidth: '40rem', margin: '2rem auto', padding: '2rem', background: '#f9fafb', borderRadius: '0.75rem', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+      <h2 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: '700', color: '#2c3e50', marginBottom: '1.5rem' }}>Add Problem</h2>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <select
           name="category"
           value={formData.category}
@@ -309,7 +292,7 @@ const AddProblem = () => {
             onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
           />
         )}
-        {(isWanFirewall || isAccessPoints) && (
+        {currentSubCategories.length > 0 && (
           <select
             name="subCategory"
             value={formData.subCategory}
@@ -497,6 +480,7 @@ const AddProblem = () => {
                 Mr. {person}
               </option>
             ))}
+            <option value="Other">Other</option>
           </select>
         ) : (
           <input
@@ -513,6 +497,26 @@ const AddProblem = () => {
               transition: 'border-color 0.3s, box-shadow 0.3s',
               color: '#4b5563'
             }}
+            onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
+          />
+        )}
+        {formData.escalatedPerson === 'Other' && (
+          <input
+            name="customEscalatedPerson"
+            placeholder="Specify Escalated Person"
+            value={formData.customEscalatedPerson}
+            onChange={handleChange}
+            style={{
+              padding: '0.5rem',
+              width: '100%',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              outline: 'none',
+              transition: 'border-color 0.3s, box-shadow 0.3s',
+              color: '#4b5563'
+            }}
+            required
             onFocus={(e) => { e.target.style.borderColor = '#3b82f6'; e.target.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.5)'; }}
             onBlur={(e) => { e.target.style.borderColor = '#d1d5db'; e.target.style.boxShadow = 'none'; }}
           />
